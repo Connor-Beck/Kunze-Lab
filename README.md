@@ -1,2 +1,2 @@
 # Kunze-Lab
-Kunze Lab Repository for all Software based Projects
+Kunze Neuroenginneering Lab Repository for all Software based Projects
