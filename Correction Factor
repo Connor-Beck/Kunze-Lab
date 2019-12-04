@@ -1,0 +1,22 @@
+@ -0,0 +1,21 @@
+
+// open("/Users/hammadkhan/Desktop/traces/Image002 R1.csv")
+
+string = File.openAsString("")
+lines = split(string, "\n"); 
+nindents = lengthOf(lines); 
+modulus_min = 99999999; 
+        modulus_max = 0; 
+        moduli_file = File.openAsString(""); 
+        moduli_lines = split(moduli_file, "\n"); 
+        moduli = newArray(nindents); 
+        for (m=0; m<lengthOf(moduli_lines); m++){ 
+                moduli_n= split(moduli_lines[m], "\,"); 
+                if (isNaN(moduli_n[5]) == true) moduli[m] = 0; else moduli[m] =   
+parseFloat(moduli_n[5]); 
+                if (moduli[m] > modulus_max) modulus_max = moduli[m]; 
+        } 
+ 
+
+print("Maximum", modulus_max);
+print("Correction Factor", modulus_max/2);

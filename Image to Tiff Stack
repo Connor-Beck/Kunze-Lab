@@ -1,0 +1,27 @@
+@@ -0,0 +1,27 @@
+/*
+ * This scipt breaks down a Tiff stack image into 
+ * seperate image files. 
+ * All images are saved as .tif.
+ * Video must be loaded prior to running this program.
+ * This code was initially designed for particle image velocimetry (PIV) analysis.
+ * 
+ * Hammad Khan, Kunze Neuroengineering Lab, July 2019
+ */
+
+	// Sets parameters to save the stack image files
+	output = getDirectory("Select a Directory to Save Stacks"); // Sets destination folder
+	frames = nSlices(); // Returns number of frames in the video file
+	ID = getImageID();
+	
+	// Calls stack image program within FIJI
+	run("Stack to Images");
+		// Sets interation for the number of frames detected in the video
+		for (i = 0; i < frames; i++) {
+			filename = getTitle();
+			saveAs("Tiff", output + filename);
+			run("Close");
+		}		
+	run("Close All");
+	// Runs confirmation 
+	waitForUser("Compiled Image Stack", "Image Stack is Complete");

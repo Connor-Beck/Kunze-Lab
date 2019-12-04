@@ -1,0 +1,121 @@
+@@ -0,0 +1,120 @@
+/* This script automates radial segmentation for any image region that is selected,
+ * and plots a plot profile based on the number of segmentation chosen by the user.
+ *  Radial segment is kept constant for each iteration.
+ *  Angle segmentation is determined by 180 degrees divided by the number of iterations,
+ *  ie. a higher number of segmentations will yield stronger statistical data in profiling intensity.
+ *  Center of the circle is automatically adjusted for.
+ *  All data plotted are saved as csv.
+ *  
+ *  Hammad Khan, Kunze Neuroengineering Lab, July 2019
+ */
+
+/************************************************/
+
+// Define output file destinations for all csvs
+ output = "/Users/hammadkhan/Desktop/Mito/CSV/";
+
+/************************************************/
+
+// Dialog to set adjustments
+	// Allows user to choose image file for segmentation
+	open("")
+  // Creates dialog box
+  width=512; height=512;
+  filename = "untitled"
+  Dialog.create("Segmentation Options");
+	// Names csv trace that will be saved to output
+ 	 Dialog.addString("Name exported CSV:", filename);
+
+    // Number of iterations for segmentation
+ 	 Dialog.addNumber("Number of Segmentations:", 180);
+ 		 n = Dialog.getNumber();
+
+ 	// Sets scaling option
+ 	 Dialog.addCheckbox("Adjust Scale", true);
+ 	 Dialog.show();
+  filename = Dialog.getString();
+  scale = Dialog.getCheckbox();
+   	 	// Runs UI for globally setting image scale
+ 			if (scale==true){ run("Set Scale...");}
+
+// Segmentation region selection
+ ID = getImageID();
+ title = "Image Selection";
+ msg = "Select Segmentation Region and click OK";
+  waitForUser(title, msg);
+  	run("Crop");
+  	saveAs("Tiff", output + filename);
+
+// Line selection and rotation:
+ makeLine(150, 150, 850, 850);
+ ID = getImageID();
+
+	// Allows user to adjust the segmentation line manually
+
+  	 title = "Adjustment";
+ 	 msg = "Adjust Selection Region and click OK";
+ 	 	waitForUser(title, msg);
+
+	// Segmentation loop
+	n = Dialog.getNumber();
+	 for (i = 0; i < n; i++) {
+		rotateCurrentLineSelection(180/n);
+ 			roiManager("add")
+		}
+
+	// Saving segmentation files to destination folder
+	/* Note that output and filename were defined in
+	 *file destination and segmentation region respectively
+	 */
+
+	roiManager("multi plot")
+		name = filename +".csv";
+			Plot.showValues();
+		saveAs("Results", output + name);
+
+// Close all active windows
+ waitForUser("Segmentation Saved to Output Folder" );
+ roiManager("delete")
+ run("Close All");
+
+
+// Sets option to rerun segmentation program
+  width=512; height=512;
+  Dialog.create("Segmentation Options");
+  	Dialog.addCheckbox("Segment a New Image?", true);
+    Dialog.show();
+  filename = Dialog.getString();
+  scale = Dialog.getCheckbox();
+  		if (scale==true){runMacro("/Users/hammadkhan/Desktop/Segmentation Edited.ijm");}
+
+// Functions required to do the rotation:
+function rotateCurrentLineSelection(theta){
+	getSelectionCoordinates( x, y );
+	getDimensions(w,h,ch,sl,fr);
+	p1 = rotatePoint(theta,x[0],y[0],h,w);
+	p2 = rotatePoint(theta,x[1],y[1],h,w);
+	makeLine(p1[0],p1[1],p2[0],p2[1]);
+}
+
+function translateCurrentLineSelection(deltx,delty){
+	getSelectionCoordinates(x,y);
+	x = newArray(x[0]+deltx,x[1]+deltx);
+	y = newArray(y[0]+delty,y[1]+delty);
+	makeLine(x[0],y[0],x[1],y[1]);
+}
+
+function rotatePoint(theta,x,y,h,w){
+	// Translate to centre origin cartesian and radians
+	x1 = x-(w/2);
+	y1 = -(y-(h/2));
+	theta = theta*PI/180;
+	// Rotate point
+	x2 = (x1*cos(theta))-(y1*sin(theta));
+	y2 = (x1*sin(theta))+(y1*cos(theta));
+	// Translate back to imageJ coordinates
+	x2 = x2 + (w/2);
+	y2 = (h/2)-y2;
+	point = newArray(x2,y2);
+	return point;
+}
